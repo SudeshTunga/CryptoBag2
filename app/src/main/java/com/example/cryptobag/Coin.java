@@ -1,5 +1,6 @@
 package com.example.cryptobag;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 public class Coin {
@@ -105,6 +106,19 @@ public class Coin {
         return coins;
     }
 
+   public static LinkedList<Coin> CreateCoins (LinkedList<Coin> coins) {
+
+       ArrayList<Coin> myCoins = getCoins();
+
+       coins.addAll(myCoins);
+
+
+
+        return coins;
+   }
+
+
+
     public static Coin searchCoin(String symbol) {
    ArrayList<Coin> myCoins = getCoins();
 
@@ -164,5 +178,10 @@ public class Coin {
 
 
         return myCoin;
+    }
+
+    @Override
+    public String toString() {
+        return  name;
     }
 }
