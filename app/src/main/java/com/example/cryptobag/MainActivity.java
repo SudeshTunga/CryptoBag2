@@ -1,9 +1,7 @@
 package com.example.cryptobag;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -11,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.LinkedList;
 
-public class MainActivity extends AppCompatActivity implements CoinListAdapter.CoinViewHolder.OnNoteListen {
+public class MainActivity extends AppCompatActivity {
 public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
     private RecyclerView mRecyclerView;
     private CoinListAdapter mAdapter;
@@ -34,7 +32,7 @@ private static final String TAG = "MainActivity";
 
         Log.d(TAG, "Get a handle to the RecyclerView done");
 
-        mAdapter = new CoinListAdapter(this, mWordList, this);
+        mAdapter = new CoinListAdapter(this, mWordList);
 
         // Connect the adapter with the RecyclerView.
         mRecyclerView.setAdapter(mAdapter);
@@ -46,32 +44,27 @@ private static final String TAG = "MainActivity";
 
         Log.d(TAG, "Give the RecyclerView a default layout manager done");
 
-        mRecyclerView.setOnClickListener(new View.OnClickListener() {
+     //   mRecyclerView.setOnClickListener(new View.OnClickListener() {
 
-        public void onClick(View view) {
+      //  public void onClick(View view) {
+      //      Log.d(TAG, "Clicked mate2");
+      //          sendMessage("BTC");
+     //   }
 
-                sendMessage("BTC");
-        }
-
-            public void sendMessage(String message) {
+       //     public void sendMessage(String message) {
 
 
-                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra(EXTRA_MESSAGE, message);
-                startActivity(intent);
+     //           Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+     //           intent.putExtra(EXTRA_MESSAGE, message);
+     //           startActivity(intent);
 
                 // Do something in response to button
-            }
+       //     }
 
-        });
+      //  });
     }
 
-    @Override
-    public void onNoteClick(int position) {
-        mWordList.get(position);
-        Intent intent = new Intent (this, DetailActivity.class);
-        startActivity(intent);
-    }
+
 
     /** Called when the user taps the Send button */
 

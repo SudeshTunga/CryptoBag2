@@ -1,6 +1,8 @@
 package com.example.cryptobag;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +18,9 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
     private final LinkedList<Coin> mWordList;
     private LayoutInflater mInflater;
     private static final String TAG = "CoinListAdapter";
-    private CoinViewHolder.OnNoteListen mOnNoteListen;
+    public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
 
-    CoinViewHolder.OnNoteListen onNoteListen;
+
     static class CoinViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView coinName;
@@ -27,16 +29,15 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
         public final TextView coinSymbol;
         final CoinListAdapter mAdapter;
 
-        OnNoteListen onNoteListen;
 
-        public CoinViewHolder(View itemView, CoinListAdapter adapter, OnNoteListen onNoteListen) {
+
+        public CoinViewHolder(View itemView, CoinListAdapter adapter) {
             super(itemView);
             coinName = itemView.findViewById(R.id.word);
             coinPrice = itemView.findViewById(R.id.Price);
             coinChange1h = itemView.findViewById(R.id.Percentage);
             coinSymbol = itemView.findViewById(R.id.Symbol);
             this.mAdapter = adapter;
-            this.onNoteListen = onNoteListen;
             itemView.setOnClickListener(this);
 
         }
@@ -46,25 +47,27 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
         @Override
         public void onClick(View v) {
 
-            int mPosition = getLayoutPosition();
+            Context context = itemView.getContext();
+            Intent intent = new Intent(context, DetailActivity.class);
+            int message = getLayoutPosition();
+           String message2 = Integer.toString(message);
+            Log.d(TAG, "Clicked mate");
+           String yeet = (String) coinSymbol.getText();
+            intent.putExtra(EXTRA_MESSAGE, yeet);
+            context.startActivity(intent);
 
-            onNoteListen.onNoteClick(getAdapterPosition());
+
         }
 
 
-        public interface OnNoteListen{
 
-            void onNoteClick(int position);
-
-        }
     }
 
 
     public CoinListAdapter(Context context,
-                           LinkedList<Coin> wordList, CoinViewHolder.OnNoteListen onNoteListen) {
+                           LinkedList<Coin> wordList) {
         mInflater = LayoutInflater.from(context);
         this.mWordList = wordList;
-        this.mOnNoteListen = onNoteListen;
     }
     @NonNull
     @Override
@@ -72,7 +75,7 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
 
         View mItemView = mInflater.inflate(R.layout.wordlist_item,
                 parent, false);
-        return new CoinViewHolder(mItemView, this, onNoteListen);
+        return new CoinViewHolder(mItemView, this);
     }
 
     @Override
@@ -84,6 +87,7 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
         holder.coinPrice.setText( "$" + (double) mCurrent.getValue());
         holder.coinSymbol.setText(mCurrent.getSymbol());
         holder.coinSymbol.setVisibility(View.INVISIBLE);
+
     }
 
     @Override

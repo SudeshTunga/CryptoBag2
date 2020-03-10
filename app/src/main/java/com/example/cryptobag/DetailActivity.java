@@ -1,12 +1,12 @@
 package com.example.cryptobag;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
+import java.util.LinkedList;
 
 public class DetailActivity extends AppCompatActivity {
     private TextView Name;
@@ -17,6 +17,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView Change7d;
     private TextView Marketcap;
     private TextView Volume24h;
+    private final LinkedList<Coin> Coins = new LinkedList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,12 +32,14 @@ public class DetailActivity extends AppCompatActivity {
         Volume24h = findViewById(R.id.Volume24h);
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-        String coinSymbol = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+       String message = intent.getStringExtra(CoinListAdapter.EXTRA_MESSAGE);
 
 
-        final Coin coin = Coin.searchCoin(coinSymbol);
 
-    Name.setText(coin.getName());
+
+        final Coin coin = Coin.searchCoin(message);
+
+       Name.setText(coin.getName());
         Symbol.setText(coin.getSymbol());
         ValueUSD.setText(Double.toString(coin.getValue()));
         Change1h.setText(Double.toString(coin.getChange1h()));
