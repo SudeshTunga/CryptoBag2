@@ -1,8 +1,6 @@
 package com.example.cryptobag;
 
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +14,7 @@ import java.util.LinkedList;
 public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinViewHolder> {
 
     private final LinkedList<Coin> mWordList;
+    private OnCoinListener mOnCoinListener;
     private LayoutInflater mInflater;
     private static final String TAG = "CoinListAdapter";
     public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
@@ -28,16 +27,17 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
         public final TextView coinChange1h;
         public final TextView coinSymbol;
         final CoinListAdapter mAdapter;
+        OnCoinListener onCoinListener;
 
 
-
-        public CoinViewHolder(View itemView, CoinListAdapter adapter) {
+        public CoinViewHolder(View itemView, CoinListAdapter adapter, OnCoinListener onCoinListener) {
             super(itemView);
             coinName = itemView.findViewById(R.id.word);
             coinPrice = itemView.findViewById(R.id.Price);
             coinChange1h = itemView.findViewById(R.id.Percentage);
             coinSymbol = itemView.findViewById(R.id.Symbol);
             this.mAdapter = adapter;
+            this.onCoinListener = onCoinListener;
             itemView.setOnClickListener(this);
 
         }
@@ -47,27 +47,32 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
         @Override
         public void onClick(View v) {
 
-            Context context = itemView.getContext();
-            Intent intent = new Intent(context, DetailActivity.class);
-            int message = getLayoutPosition();
-           String message2 = Integer.toString(message);
-            Log.d(TAG, "Clicked mate");
-           String yeet = (String) coinSymbol.getText();
-            intent.putExtra(EXTRA_MESSAGE, yeet);
-            context.startActivity(intent);
+            int position = getAdapterPosition();
+
+            onCoinListener.onCoinClick(position);
+
+
 
 
         }
 
 
 
+
+
     }
 
 
+    public interface OnCoinListener {
+
+        void onCoinClick(int position);
+    }
+
     public CoinListAdapter(Context context,
-                           LinkedList<Coin> wordList) {
+                           LinkedList<Coin> wordList, OnCoinListener OnCoinListener ) {
         mInflater = LayoutInflater.from(context);
         this.mWordList = wordList;
+        this.mOnCoinListener = OnCoinListener;
     }
     @NonNull
     @Override
@@ -75,7 +80,7 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
 
         View mItemView = mInflater.inflate(R.layout.wordlist_item,
                 parent, false);
-        return new CoinViewHolder(mItemView, this);
+        return new CoinViewHolder(mItemView, this, mOnCoinListener);
     }
 
     @Override
