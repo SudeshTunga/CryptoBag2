@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity implements CoinListAdapter.O
 public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
     private RecyclerView mRecyclerView;
     private CoinListAdapter mAdapter;
-
+///
 
     static CoinLoreResponse mycoinlist =  new Gson().fromJson(CoinLoreResponse.queryResult, CoinLoreResponse.class);
     static List<com.example.cryptobag.Entities.Coin> mycoins = mycoinlist.getData();
