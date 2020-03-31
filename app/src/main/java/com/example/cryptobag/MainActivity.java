@@ -10,20 +10,27 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.LinkedList;
+import com.example.cryptobag.Entities.CoinLoreResponse;
+import com.google.gson.Gson;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements CoinListAdapter.OnCoinListener {
 public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
     private RecyclerView mRecyclerView;
     private CoinListAdapter mAdapter;
-private final LinkedList<Coin> mWordList = new LinkedList<>();
+
+
+    static CoinLoreResponse mycoinlist =  new Gson().fromJson(CoinLoreResponse.queryResult, CoinLoreResponse.class);
+    static List<com.example.cryptobag.Entities.Coin> mycoins = mycoinlist.getData();
 private static final String TAG = "MainActivity";
 boolean mIsDualPane;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       LinkedList<Coin> mycoin = Coin.CreateCoins(mWordList);
+
+      // LinkedList<Coin> mycoin = Coin.CreateCoins(mWordList);
         //I could use a Linked List but make each value equal to an object.get() method.
         //Could then set the components in the wordlist_item.xml view with the object.set() method.
 
@@ -35,7 +42,7 @@ boolean mIsDualPane;
 
         Log.d(TAG, "Get a handle to the RecyclerView done");
 
-        mAdapter = new CoinListAdapter(this, mWordList, this);
+        mAdapter = new CoinListAdapter(this, mycoins, this);
 
         // Connect the adapter with the RecyclerView.
         mRecyclerView.setAdapter(mAdapter);
@@ -58,11 +65,6 @@ boolean mIsDualPane;
 
 
         String Symbol = null;
-
-
-
-
-
 
 
         if (detail_scrollview != null && detail_scrollview.getVisibility() == View.VISIBLE) {
@@ -105,7 +107,7 @@ boolean mIsDualPane;
     public void onCoinClick(int position) {
 
         Log.d(TAG, "onCoinClick: clicked");
-        String symbol = getSymbol(position);
+        int symbol = position;
 
         if (mIsDualPane == false) {
 
@@ -121,18 +123,18 @@ boolean mIsDualPane;
 
     }
 
-    public void phoneView (String symbol) {
+    public void phoneView (int symbol) {
 
         Intent intent = new Intent (this, DetailActivity.class);
-        String message = symbol;
-        intent.putExtra(EXTRA_MESSAGE, symbol);
+        String message = Integer.toString(symbol);
+        intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
 
     }
 
 
 
-    public void ipadView (String symbol) {
+    public void ipadView (int symbol) {
 
         DetailFragment fragment = new DetailFragment();
 
@@ -150,70 +152,27 @@ boolean mIsDualPane;
 
         transaction.commit();
 
+        String convertsymbol = Integer.toString(symbol);
+
         Bundle intentBundle = new Bundle();
-        intentBundle.putString(EXTRA_MESSAGE, symbol);
+        intentBundle.putString(EXTRA_MESSAGE, convertsymbol);
         fragment.setArguments(intentBundle);
 
 
     }
 
-    public String getSymbol (int position) {
-        String symbol = "";
-
-        if (position == 0) {
-
-            symbol = "BTC";
-
-        }
-
-        else if (position == 1) {
-
-            symbol = "ETH";
-        }
-
-        else if (position == 2) {
-
-            symbol = "XRP";
-        }
-
-        else if (position == 3) {
-
-            symbol = "BCH";
-        }
-
-        else if (position == 4) {
-
-            symbol = "BCHSV";
-        }
-
-        else if (position == 5) {
-            symbol = "USDT";
-
-        }
-
-        else if (position == 6) {
-
-            symbol = "LTC";
-        }
-
-        else if (position == 7) {
-            symbol = "EOS";
-
-        }
-
-        else if (position == 8) {
-
-            symbol = "BNB";
-        }
-
-        else if (position == 9) {
-
-            symbol = "XLM";
-        }
+  //  public String getSymbol (int position) {
+   //     String mysymbol = mycoinlist.get(position).getSymbol();
+  //      return mysymbol;
+  //  }
 
 
+    public static com.example.cryptobag.Entities.Coin coinSearch(int position) {
 
-        return symbol;
+        com.example.cryptobag.Entities.Coin targetCoin = mycoins.get(position);
+        Log.d("Main Activity", "targetcoin:" + targetCoin);
+
+        return targetCoin;
     }
 
 

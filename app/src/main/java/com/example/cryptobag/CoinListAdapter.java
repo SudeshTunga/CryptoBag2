@@ -9,11 +9,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.LinkedList;
+import com.example.cryptobag.Entities.Coin;
+
+import java.util.List;
 
 public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinViewHolder> {
 
-    private final LinkedList<Coin> mWordList;
+    private final List<com.example.cryptobag.Entities.Coin> mWordList;
     private OnCoinListener mOnCoinListener;
     private LayoutInflater mInflater;
     private static final String TAG = "CoinListAdapter";
@@ -69,7 +71,7 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
     }
 
     public CoinListAdapter(Context context,
-                           LinkedList<Coin> wordList, OnCoinListener OnCoinListener ) {
+                           List<com.example.cryptobag.Entities.Coin> wordList, OnCoinListener OnCoinListener ) {
         mInflater = LayoutInflater.from(context);
         this.mWordList = wordList;
         this.mOnCoinListener = OnCoinListener;
@@ -88,8 +90,8 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
 
         Coin mCurrent = mWordList.get(position);
         holder.coinName.setText(mCurrent.getName());
-        holder.coinChange1h.setText((double) mCurrent.getChange1h() + "%");
-        holder.coinPrice.setText( "$" + (double) mCurrent.getValue());
+        holder.coinChange1h.setText(mCurrent.getPercentChange1h() + "%");
+        holder.coinPrice.setText( "$" + mCurrent.getPriceUsd());
         holder.coinSymbol.setText(mCurrent.getSymbol());
         holder.coinSymbol.setVisibility(View.INVISIBLE);
 

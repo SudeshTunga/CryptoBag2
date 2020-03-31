@@ -155,21 +155,27 @@ public class Coin {
 
         }
 
-        if (symbol.equals("EOS")) {
+        if (symbol.equals("LTC")) {
 
             myCoin = myCoins.get(6);
 
         }
 
-        if (symbol.equals("BNB")) {
+        if (symbol.equals("EOS")) {
 
             myCoin = myCoins.get(7);
 
         }
 
-        if (symbol.equals("XLM")) {
+        if (symbol.equals("BNB")) {
 
             myCoin = myCoins.get(8);
+
+        }
+
+        if (symbol.equals("XML")) {
+
+            myCoin = myCoins.get(9);
 
         }
 

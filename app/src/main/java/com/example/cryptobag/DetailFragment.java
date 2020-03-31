@@ -90,18 +90,21 @@ public class DetailFragment extends Fragment {
         Marketcap = getView().findViewById(R.id.Marketcap);
         Volume24h = getView().findViewById(R.id.Volume24h);
         final Coin coin = Coin.searchCoin(message);
+        int messageint = Integer.parseInt(message);
+        Log.d("detail fragment", "message  = " + messageint);
+        com.example.cryptobag.Entities.Coin coin2 = MainActivity.coinSearch(messageint);
 
 
         Log.d("detail fragment", "coin  = " + coin);
 
-        Name.setText(coin.getName());
-        Symbol.setText(coin.getSymbol());
-        ValueUSD.setText(Double.toString(coin.getValue()));
-        Change1h.setText(Double.toString(coin.getChange1h()));
-        Change24h.setText(Double.toString(coin.getChange24h()));
-        Change7d.setText(Double.toString(coin.getChange7d()));
-        Marketcap.setText(Double.toString(coin.getMarketcap()));
-        Volume24h.setText(Double.toString(coin.getVolume()));
+        Name.setText(coin2.getName());
+        Symbol.setText(coin2.getSymbol());
+        ValueUSD.setText(coin2.getPriceUsd());
+        Change1h.setText(coin2.getPercentChange1h());
+        Change24h.setText(coin2.getPercentChange24h());
+        Change7d.setText(coin2.getPercentChange7d());
+        Marketcap.setText(coin2.getMarketCapUsd());
+        Volume24h.setText(Double.toString(coin2.getVolume24()));
 
     }
 
