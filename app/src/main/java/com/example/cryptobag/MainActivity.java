@@ -11,9 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cryptobag.Entities.CoinLoreResponse;
-import com.google.gson.Gson;
+import com.example.cryptobag.Entities.CoinService;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class MainActivity extends AppCompatActivity implements CoinListAdapter.OnCoinListener {
 public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
@@ -21,8 +28,9 @@ public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
     private CoinListAdapter mAdapter;
 ///
 
-    static CoinLoreResponse mycoinlist =  new Gson().fromJson(CoinLoreResponse.queryResult, CoinLoreResponse.class);
-    static List<com.example.cryptobag.Entities.Coin> mycoins = mycoinlist.getData();
+   // static CoinLoreResponse mycoinlist =  new Gson().fromJson(CoinLoreResponse.queryResult, CoinLoreResponse.class);
+   // static List<com.example.cryptobag.Entities.Coin> mycoins = mycoinlist.getData();
+    private static List<com.example.cryptobag.Entities.Coin> coinList;
 private static final String TAG = "MainActivity";
 boolean mIsDualPane;
     @Override
@@ -42,17 +50,50 @@ boolean mIsDualPane;
 
         Log.d(TAG, "Get a handle to the RecyclerView done");
 
-        mAdapter = new CoinListAdapter(this, mycoins, this);
+        // Give the RecyclerView a default layout manager.
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        // prepare Retrofit
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl("https://api.coinlore.net/api/")
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        CoinService service = retrofit.create(CoinService.class);
+        Call<CoinLoreResponse> call = service.get100Coins();
+        Log.d(TAG, "yeetness everdeen"+ call);
+
+        Log.d(TAG, "Give the RecyclerView a default layout manager done");
+
+        mAdapter = new CoinListAdapter(this, coinList, this);
 
         // Connect the adapter with the RecyclerView.
         mRecyclerView.setAdapter(mAdapter);
 
         Log.d(TAG, "Connect the adapter with the RecyclerView done");
 
-        // Give the RecyclerView a default layout manager.
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        Log.d(TAG, "Give the RecyclerView a default layout manager done");
+        //execute call asynchronously using enqueue
+
+        call.enqueue(new Callback<CoinLoreResponse>() {
+            @Override
+            public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
+                // create CoinLoreResponse to capture api call response
+
+                CoinLoreResponse coinResponse = response.body();
+                List<com.example.cryptobag.Entities.Coin> myCoins = coinResponse.getData();
+
+                setCoins(myCoins);
+            }
+
+            @Override
+            public void onFailure(Call<CoinLoreResponse> call, Throwable t) {
+                String failMsg = "Could not connect to CoinLore API";
+            }
+        });
+
 
         View detail_scrollview = findViewById(R.id.detail_container);
 
@@ -169,10 +210,20 @@ boolean mIsDualPane;
 
     public static com.example.cryptobag.Entities.Coin coinSearch(int position) {
 
-        com.example.cryptobag.Entities.Coin targetCoin = mycoins.get(position);
+        com.example.cryptobag.Entities.Coin targetCoin = coinList.get(position);
         Log.d("Main Activity", "targetcoin:" + targetCoin);
 
         return targetCoin;
+    }
+
+
+    public void setCoins(List<com.example.cryptobag.Entities.Coin> newCoins) {
+        coinList = newCoins;
+        mAdapter = new CoinListAdapter(this, newCoins, this);
+        mRecyclerView.setAdapter(mAdapter);
+        Log.d(TAG, "yeet2" + coinList);
+
+
     }
 
 

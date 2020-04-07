@@ -99,8 +99,13 @@ public class CoinListAdapter extends RecyclerView.Adapter<CoinListAdapter.CoinVi
 
     @Override
     public int getItemCount() {
-        return mWordList.size();
+        int size = 0;
+        if (mWordList != null) {
+            size = mWordList.size();
+        }
+        return size;
+    }
     }
 
 
-}
+
