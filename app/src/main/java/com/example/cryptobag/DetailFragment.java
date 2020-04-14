@@ -80,6 +80,8 @@ public class DetailFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         Bundle bundle = getArguments();
         String message = bundle.getString(MainActivity.EXTRA_MESSAGE);
+
+
         Log.d("detail fragment", "message = " + message);
         Name = getView().findViewById(R.id.Name);
         Symbol = getView().findViewById(R.id.Symbol);

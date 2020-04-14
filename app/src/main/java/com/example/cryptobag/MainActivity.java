@@ -1,6 +1,7 @@
 package com.example.cryptobag;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,10 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cryptobag.Entities.CoinLoreResponse;
 import com.example.cryptobag.Entities.CoinService;
 
+import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -54,46 +55,47 @@ boolean mIsDualPane;
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
-        // prepare Retrofit
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl("https://api.coinlore.net/api/")
-                .addConverterFactory(GsonConverterFactory.create());
+//        Log.d(TAG, "Give the RecyclerView a default layout manager done");
+//
+//        mAdapter = new CoinListAdapter(this, coinList, this);
+//
+//        // Connect the adapter with the RecyclerView.
+//        mRecyclerView.setAdapter(mAdapter);
+//
+//        Log.d(TAG, "Connect the adapter with the RecyclerView done");
+//        // prepare Retrofit
+//        Retrofit.Builder builder = new Retrofit.Builder()
+//                .baseUrl("https://api.coinlore.net/api/")
+//                .addConverterFactory(GsonConverterFactory.create());
+//
+//        Retrofit retrofit = builder.build();
+//
+//        CoinService service = retrofit.create(CoinService.class);
+//        Call<CoinLoreResponse> call = service.get100Coins();
+//        Log.d(TAG, "yeetness everdeen"+ call);
+//
+//
+//
+//        //execute call asynchronously using enqueue
+//
+//        call.enqueue(new Callback<CoinLoreResponse>() {
+//            @Override
+//            public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
+//                // create CoinLoreResponse to capture api call response
+//
+//                CoinLoreResponse coinResponse = response.body();
+//                List<com.example.cryptobag.Entities.Coin> myCoins = coinResponse.getData();
+//
+//                setCoins(myCoins);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<CoinLoreResponse> call, Throwable t) {
+//                String failMsg = "Could not connect to CoinLore API";
+//            }
+//        });
 
-        Retrofit retrofit = builder.build();
-
-        CoinService service = retrofit.create(CoinService.class);
-        Call<CoinLoreResponse> call = service.get100Coins();
-        Log.d(TAG, "yeetness everdeen"+ call);
-
-        Log.d(TAG, "Give the RecyclerView a default layout manager done");
-
-        mAdapter = new CoinListAdapter(this, coinList, this);
-
-        // Connect the adapter with the RecyclerView.
-        mRecyclerView.setAdapter(mAdapter);
-
-        Log.d(TAG, "Connect the adapter with the RecyclerView done");
-
-
-        //execute call asynchronously using enqueue
-
-        call.enqueue(new Callback<CoinLoreResponse>() {
-            @Override
-            public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
-                // create CoinLoreResponse to capture api call response
-
-                CoinLoreResponse coinResponse = response.body();
-                List<com.example.cryptobag.Entities.Coin> myCoins = coinResponse.getData();
-
-                setCoins(myCoins);
-            }
-
-            @Override
-            public void onFailure(Call<CoinLoreResponse> call, Throwable t) {
-                String failMsg = "Could not connect to CoinLore API";
-            }
-        });
-
+        new NetworkAssignment().execute();
 
         View detail_scrollview = findViewById(R.id.detail_container);
 
@@ -142,6 +144,47 @@ boolean mIsDualPane;
         }
 
 
+    }
+
+    public class NetworkAssignment extends AsyncTask<Void, Integer, CoinLoreResponse>{
+
+
+        @Override
+        protected CoinLoreResponse doInBackground(Void... voids) {
+
+            Retrofit.Builder builder = new Retrofit.Builder()
+                    .baseUrl("https://api.coinlore.net/api/")
+                    .addConverterFactory(GsonConverterFactory.create());
+
+            Retrofit retrofit = builder.build();
+
+            CoinService service = retrofit.create(CoinService.class);
+            Call<CoinLoreResponse> call = service.get100Coins();
+
+            CoinLoreResponse coinList = null;
+
+
+            try {
+                Response<CoinLoreResponse> coinResponse = call.execute();
+                coinList = coinResponse.body();
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+
+            return coinList;
+        }
+
+        @Override
+        protected void onPostExecute (CoinLoreResponse coinLoreResponse) {
+            super.onPostExecute(coinLoreResponse);
+            if(coinLoreResponse != null) {
+                setCoins(coinLoreResponse.getData());
+            } else {
+
+
+            }
+        }
     }
 
     @Override
