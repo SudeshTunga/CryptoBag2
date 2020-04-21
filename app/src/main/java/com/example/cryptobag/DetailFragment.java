@@ -1,7 +1,7 @@
 package com.example.cryptobag;
 
-import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import com.example.cryptobag.Entities.Coin;
 
 import java.util.LinkedList;
 
@@ -91,37 +93,48 @@ public class DetailFragment extends Fragment {
         Change7d = getView().findViewById(R.id.Change7d);
         Marketcap = getView().findViewById(R.id.Marketcap);
         Volume24h = getView().findViewById(R.id.Volume24h);
-        final Coin coin = Coin.searchCoin(message);
+        new CoinQueryTask().execute();
         int messageint = Integer.parseInt(message);
         Log.d("detail fragment", "message  = " + messageint);
-        com.example.cryptobag.Entities.Coin coin2 = MainActivity.coinSearch(messageint);
 
-
-        Log.d("detail fragment", "coin  = " + coin);
-
-        Name.setText(coin2.getName());
-        Symbol.setText(coin2.getSymbol());
-        ValueUSD.setText(coin2.getPriceUsd());
-        Change1h.setText(coin2.getPercentChange1h());
-        Change24h.setText(coin2.getPercentChange24h());
-        Change7d.setText(coin2.getPercentChange7d());
-        Marketcap.setText(coin2.getMarketCapUsd());
-        Volume24h.setText(Double.toString(coin2.getVolume24()));
 
     }
+
+
+public class CoinQueryTask extends AsyncTask<Void, Void, Coin> {
 
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    protected Coin doInBackground(Void... voids) {
 
+        String id = getArguments().getString(MainActivity.EXTRA_MESSAGE);
+        Coin targetCoin = MainActivity.coinDb.coinDao().getCoinById(id);
+        return targetCoin;
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    protected void onPostExecute(Coin mycoin) {
+super.onPostExecute(mycoin);
+
+if(mycoin != null) {
+
+    Name.setText(mycoin.getName());
+    Symbol.setText(mycoin.getSymbol());
+    ValueUSD.setText(mycoin.getPriceUsd());
+    Change1h.setText(mycoin.getPercentChange1h());
+    Change24h.setText(mycoin.getPercentChange24h());
+    Change7d.setText(mycoin.getPercentChange7d());
+    Marketcap.setText(mycoin.getMarketCapUsd());
+    Volume24h.setText(Double.toString(mycoin.getVolume24()));
+} else {
+
+
+}
+
     }
+}
+
+
 
     /**
      * This interface must be implemented by activities that contain this

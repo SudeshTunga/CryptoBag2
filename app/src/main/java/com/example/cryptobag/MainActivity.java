@@ -10,11 +10,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
+import com.example.cryptobag.Entities.Coin;
+import com.example.cryptobag.Entities.CoinDatabase;
 import com.example.cryptobag.Entities.CoinLoreResponse;
 import com.example.cryptobag.Entities.CoinService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -27,21 +31,14 @@ public class MainActivity extends AppCompatActivity implements CoinListAdapter.O
 public static final String EXTRA_MESSAGE = "com.example.cryptobag.MESSAGE";
     private RecyclerView mRecyclerView;
     private CoinListAdapter mAdapter;
-///
-
-   // static CoinLoreResponse mycoinlist =  new Gson().fromJson(CoinLoreResponse.queryResult, CoinLoreResponse.class);
-   // static List<com.example.cryptobag.Entities.Coin> mycoins = mycoinlist.getData();
-    private static List<com.example.cryptobag.Entities.Coin> coinList;
+    public static CoinDatabase coinDb;
+    private static List<com.example.cryptobag.Entities.Coin> coinList = new ArrayList<>();
 private static final String TAG = "MainActivity";
 boolean mIsDualPane;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-      // LinkedList<Coin> mycoin = Coin.CreateCoins(mWordList);
-        //I could use a Linked List but make each value equal to an object.get() method.
-        //Could then set the components in the wordlist_item.xml view with the object.set() method.
 
 
         Log.d(TAG, "OnCreate: Starting Launch");
@@ -53,49 +50,11 @@ boolean mIsDualPane;
 
         // Give the RecyclerView a default layout manager.
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-
-//        Log.d(TAG, "Give the RecyclerView a default layout manager done");
-//
-//        mAdapter = new CoinListAdapter(this, coinList, this);
-//
-//        // Connect the adapter with the RecyclerView.
-//        mRecyclerView.setAdapter(mAdapter);
-//
-//        Log.d(TAG, "Connect the adapter with the RecyclerView done");
-//        // prepare Retrofit
-//        Retrofit.Builder builder = new Retrofit.Builder()
-//                .baseUrl("https://api.coinlore.net/api/")
-//                .addConverterFactory(GsonConverterFactory.create());
-//
-//        Retrofit retrofit = builder.build();
-//
-//        CoinService service = retrofit.create(CoinService.class);
-//        Call<CoinLoreResponse> call = service.get100Coins();
-//        Log.d(TAG, "yeetness everdeen"+ call);
-//
-//
-//
-//        //execute call asynchronously using enqueue
-//
-//        call.enqueue(new Callback<CoinLoreResponse>() {
-//            @Override
-//            public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
-//                // create CoinLoreResponse to capture api call response
-//
-//                CoinLoreResponse coinResponse = response.body();
-//                List<com.example.cryptobag.Entities.Coin> myCoins = coinResponse.getData();
-//
-//                setCoins(myCoins);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<CoinLoreResponse> call, Throwable t) {
-//                String failMsg = "Could not connect to CoinLore API";
-//            }
-//        });
+        coinDb = Room.databaseBuilder(getApplicationContext(), CoinDatabase.class, "coinDb")
+                .build();
 
         new NetworkAssignment().execute();
+        new UpdateAdapterTask().execute();
 
         View detail_scrollview = findViewById(R.id.detail_container);
 
@@ -152,6 +111,8 @@ boolean mIsDualPane;
         @Override
         protected CoinLoreResponse doInBackground(Void... voids) {
 
+            coinDb.coinDao().deleteAllCoins();
+
             Retrofit.Builder builder = new Retrofit.Builder()
                     .baseUrl("https://api.coinlore.net/api/")
                     .addConverterFactory(GsonConverterFactory.create());
@@ -172,6 +133,9 @@ boolean mIsDualPane;
                 e.printStackTrace();
             }
 
+            Coin[] coinArray = coinList.getData().toArray(new Coin[coinList.getData().size()]);
+            coinDb.coinDao().insertCoins(coinArray);
+
             return coinList;
         }
 
@@ -179,7 +143,7 @@ boolean mIsDualPane;
         protected void onPostExecute (CoinLoreResponse coinLoreResponse) {
             super.onPostExecute(coinLoreResponse);
             if(coinLoreResponse != null) {
-                setCoins(coinLoreResponse.getData());
+               // setCoins(coinLoreResponse.getData());
             } else {
 
 
@@ -187,38 +151,72 @@ boolean mIsDualPane;
         }
     }
 
+  public class UpdateAdapterTask extends AsyncTask<Void, Void, List<Coin>>{
+
+
+      @Override
+      protected List<Coin> doInBackground(Void... voids) {
+
+          List<Coin> allCoins = coinDb.coinDao().getCoins();
+
+
+          coinList = allCoins;
+
+          Log.d(TAG, "ALL COINS LIST:" + allCoins);
+          return allCoins;
+      }
+
+
+      @Override
+      protected void onPostExecute(List<Coin> coins) {
+          super.onPostExecute(coins);
+
+          if(coins != null) {
+
+              setCoins(coins);
+          } else {
+
+
+          }
+
+      }
+  }
+
+
     @Override
     public void onCoinClick(int position) {
 
         Log.d(TAG, "onCoinClick: clicked");
         int symbol = position;
+        String id = coinList.get(position).getId();
+        Log.d(TAG, "clicked Coin id: " + id);
 
         if (mIsDualPane == false) {
 
-        phoneView(symbol);
+        phoneView(id);
 
         }
 
         else {
 
-            ipadView(symbol);
+            ipadView(id);
 
         }
 
     }
 
-    public void phoneView (int symbol) {
+    public void phoneView (String id) {
 
         Intent intent = new Intent (this, DetailActivity.class);
-        String message = Integer.toString(symbol);
-        intent.putExtra(EXTRA_MESSAGE, message);
+
+        intent.putExtra(EXTRA_MESSAGE, id);
         startActivity(intent);
 
     }
 
 
 
-    public void ipadView (int symbol) {
+    public void ipadView (String id) {
 
         DetailFragment fragment = new DetailFragment();
 
@@ -236,7 +234,7 @@ boolean mIsDualPane;
 
         transaction.commit();
 
-        String convertsymbol = Integer.toString(symbol);
+        String convertsymbol = id;
 
         Bundle intentBundle = new Bundle();
         intentBundle.putString(EXTRA_MESSAGE, convertsymbol);
